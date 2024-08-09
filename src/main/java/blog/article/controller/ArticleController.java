@@ -30,4 +30,11 @@ public class ArticleController {
                 .toUri();
         return ResponseEntity.created(location).body(articleCreated);
     }
+
+    @GetMapping
+    public ResponseEntity<Article> getArticle(@RequestParam Long id) {
+
+        var article = service.findById(id);
+        return ResponseEntity.ok(article);
+    }
 }
