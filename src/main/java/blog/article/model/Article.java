@@ -1,19 +1,19 @@
 package blog.article.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.List;
 
-@Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
+
+@Entity(name = "articles")
+@Table(name = "articles")
 public class Article {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,5 +24,6 @@ public class Article {
     @OneToMany
     private List<Tag> tags;
 
+    @Column(name = "publish_date")
     private LocalDate publishDate;
 }
