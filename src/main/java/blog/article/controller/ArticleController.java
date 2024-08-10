@@ -24,7 +24,7 @@ public class ArticleController {
     @PostMapping
     public ResponseEntity<Article> createArticle(@RequestBody Article article) {
 
-        var articleCreated = service.createArticle(article);
+        var articleCreated = service.saveArticle(article);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(articleCreated.getId())
@@ -41,7 +41,8 @@ public class ArticleController {
     @GetMapping("/{id}")
     public ResponseEntity<Article> getArticle(@PathVariable Long id) {
 
-        var article = service.findById(id);
-        return ResponseEntity.ok(article);
+        return service.getArticleById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
