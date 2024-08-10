@@ -2,6 +2,7 @@ package blog.article.controller;
 
 import blog.article.model.Article;
 import blog.article.service.ArticleService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -43,6 +44,23 @@ public class ArticleController {
 
         return service.getArticleById(id)
                 .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Article> updateArticle(@PathVariable Long id, @RequestBody Article article) {
+
+        return service.getArticleById(id)
+                .map(savedArticle -> {
+
+                    savedArticle.setTitle(article.getTitle());
+                    savedArticle.setContent(article.getContent());
+                    savedArticle.setTags(article.getTags());
+                    savedArticle.setPublishDate(article.getPublishDate());
+
+                    Article updatedArticle = service.updateArticle(savedArticle);
+                    return new ResponseEntity<>(updatedArticle, HttpStatus.OK);
+                })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
