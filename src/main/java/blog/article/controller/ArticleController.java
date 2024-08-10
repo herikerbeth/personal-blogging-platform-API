@@ -31,8 +31,8 @@ public class ArticleController {
         return ResponseEntity.created(location).body(articleCreated);
     }
 
-    @GetMapping
-    public ResponseEntity<Article> getArticle(@RequestParam Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<Article> getArticle(@PathVariable Long id) {
 
         var article = service.findById(id);
         return ResponseEntity.ok(article);
