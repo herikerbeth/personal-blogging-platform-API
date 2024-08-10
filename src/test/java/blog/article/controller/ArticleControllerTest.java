@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -63,6 +64,41 @@ public class ArticleControllerTest {
                 .andExpect(jsonPath("$.content", is(article.getContent())))
                 .andExpect(jsonPath("$.tags[0].name", is(article.getTags().get(0).getName())))
                 .andExpect(jsonPath("$.publishDate", is(article.getPublishDate().toString())));
+    }
+
+    // JUnit test for GET All articles REST API
+    @Test
+    void givenListOfArticles_whenGetAllArticles_thenReturnArticlesList() throws Exception {
+
+        // given - precondition or setup
+        List<Article> listOfArticles = new ArrayList<>();
+        Tag tag = Tag.builder().name("Tag name").build();
+        Article article = Article.builder()
+                .id(1L)
+                .title("Title Article")
+                .content("Content of article")
+                .tags(List.of(tag))
+                .publishDate(LocalDate.now())
+                .build();
+        Article article1 = Article.builder()
+                .id(2L)
+                .title("Title Article1")
+                .content("Content of article1")
+                .tags(List.of(tag))
+                .publishDate(LocalDate.now())
+                .build();
+
+        listOfArticles.add(article);
+        listOfArticles.add(article1);
+        given(service.getAllArticles()).willReturn(listOfArticles);
+
+        // when - action or the behaviour that we are going test
+        ResultActions response = mockMvc.perform(get("/articles"));
+
+        // then - verify the output
+        response.andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(jsonPath("$.size()", is(listOfArticles.size())));
     }
 
     // positive scenario - valid Article id
