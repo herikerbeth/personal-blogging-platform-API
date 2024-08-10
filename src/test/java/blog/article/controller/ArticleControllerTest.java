@@ -20,6 +20,7 @@ import java.util.Optional;
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -171,5 +172,21 @@ public class ArticleControllerTest {
                 .andExpect(jsonPath("$.content", is(updatedArticle.getContent())))
                 .andExpect(jsonPath("$.tags[0].name", is(updatedArticle.getTags().get(0).getName())))
                 .andExpect(jsonPath("$.publishDate", is(updatedArticle.getPublishDate().toString())));
+    }
+
+    // JUnit test for delete article REST API
+    @Test
+    void givenArticleId_whenDeleteArticle_thenReturn200() throws Exception {
+
+        // given - precondition or setup
+        Long articleId = 1L;
+        willDoNothing().given(service).deleteArticle(articleId);
+
+        // when -  action or the behaviour that we are going test
+        ResultActions response = mockMvc.perform(delete("/articles/{id}", articleId));
+
+        // then - verify the output
+        response.andExpect(status().isOk())
+                .andDo(print());
     }
 }
