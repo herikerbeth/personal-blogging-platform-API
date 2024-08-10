@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 
 @RestController
@@ -29,6 +30,12 @@ public class ArticleController {
                 .buildAndExpand(articleCreated.getId())
                 .toUri();
         return ResponseEntity.created(location).body(articleCreated);
+    }
+
+    @GetMapping
+    public List<Article> getAllArticles() {
+
+        return service.getAllArticles();
     }
 
     @GetMapping("/{id}")
