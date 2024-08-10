@@ -63,4 +63,11 @@ public class ArticleController {
                 })
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteArticle(@PathVariable Long id) {
+
+        service.deleteArticle(id);
+        return new ResponseEntity<String>("Article deleted successfully!.", HttpStatus.OK);
+    }
 }
