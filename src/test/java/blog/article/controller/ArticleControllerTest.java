@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
@@ -48,7 +49,7 @@ public class ArticleControllerTest {
                 .publishDate(LocalDate.now())
                 .build();
 
-        given(service.createArticle(any(Article.class)))
+        given(service.saveArticle(any(Article.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
 
         // when - action or behaviour that we are going test
@@ -117,8 +118,8 @@ public class ArticleControllerTest {
                 .publishDate(LocalDate.now())
                 .build();
 
-        given(service.findById(articleId))
-                .willReturn(article);
+        given(service.getArticleById(articleId))
+                .willReturn(Optional.of(article));
 
         // when - action or behaviour that we are going test
         ResultActions response = mockMvc.perform(get("/articles/{id}", articleId));
@@ -131,5 +132,44 @@ public class ArticleControllerTest {
                 .andExpect(jsonPath("$.content", is(article.getContent())))
                 .andExpect(jsonPath("$.tags[0].name", is(article.getTags().get(0).getName())))
                 .andExpect(jsonPath("$.publishDate", is(article.getPublishDate().toString())));
+    }
+
+    // JUnit test for update employee REST API - positive scenario
+    @Test
+    void givenUpdatedArticle_whenUpdateArticle_thenReturnUpdateArticleObject() throws Exception {
+
+        // given - condition or setup
+        Long articleId = 1L;
+        Tag tag = Tag.builder().name("Tag name").build();
+        Article savedArticle = Article.builder()
+                .title("Title Article")
+                .content("Content of article")
+                .tags(List.of(tag))
+                .publishDate(LocalDate.now())
+                .build();
+
+        tag = Tag.builder().name("Other Tag name").build();
+        Article updatedArticle = Article.builder()
+                .title("Updated Title Article")
+                .content("Updated content of article")
+                .tags(List.of(tag))
+                .publishDate(LocalDate.now())
+                .build();
+        given(service.getArticleById(articleId)).willReturn(Optional.of(savedArticle));
+        given(service.updateArticle(any(Article.class)))
+                .willAnswer((invocation) -> invocation.getArgument(0));
+
+        // when -  action or the behaviour that we are going test
+        ResultActions response = mockMvc.perform(put("/articles/{id}", articleId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updatedArticle)));
+
+        // then - verify the output
+        response.andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(jsonPath("$.title", is(updatedArticle.getTitle())))
+                .andExpect(jsonPath("$.content", is(updatedArticle.getContent())))
+                .andExpect(jsonPath("$.tags[0].name", is(updatedArticle.getTags().get(0).getName())))
+                .andExpect(jsonPath("$.publishDate", is(updatedArticle.getPublishDate().toString())));
     }
 }
