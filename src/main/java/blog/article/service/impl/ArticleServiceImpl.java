@@ -5,7 +5,6 @@ import blog.article.repository.ArticleRepository;
 import blog.article.service.ArticleService;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 public class ArticleServiceImpl implements ArticleService {
@@ -37,13 +36,13 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public void deleteArticle(Long id) {
-        articleRepository.deleteById(id);
-    }
-
-    @Override
     public Article updateArticle(Article updatedArticle) {
 
         return articleRepository.save(updatedArticle);
+    }
+
+    @Override
+    public void deleteArticle(Long id) {
+        articleRepository.deleteById(id);
     }
 }
