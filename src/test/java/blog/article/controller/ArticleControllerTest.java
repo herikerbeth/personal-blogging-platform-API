@@ -18,7 +18,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -58,6 +58,42 @@ public class ArticleControllerTest {
         // then - verify the result or output using assert statements
         response.andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.title", is(article.getTitle())));
+                .andExpect(jsonPath("$.id", is(article.getId().intValue())))
+                .andExpect(jsonPath("$.title", is(article.getTitle())))
+                .andExpect(jsonPath("$.content", is(article.getContent())))
+                .andExpect(jsonPath("$.tags[0].name", is(article.getTags().get(0).getName())))
+                .andExpect(jsonPath("$.publishDate", is(article.getPublishDate().toString())));
+    }
+
+    // positive scenario - valid Article id
+    // JUnit test for GET Article by id REST API
+    @Test
+    void givenArticleId_whenGetArticleById_thenReturnArticleObject() throws Exception {
+
+        // given - precondition or setup
+        Long articleId = 1L;
+        Tag tag = Tag.builder().name("Tag name").build();
+        Article article = Article.builder()
+                .id(1L)
+                .title("Title Article")
+                .content("Content of article")
+                .tags(List.of(tag))
+                .publishDate(LocalDate.now())
+                .build();
+
+        given(service.findById(articleId))
+                .willReturn(article);
+
+        // when - action or behaviour that we are going test
+        ResultActions response = mockMvc.perform(get("/articles/{id}", articleId));
+
+        // then - verify the result or output using assert statements
+        response.andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(jsonPath("$.id", is(article.getId().intValue())))
+                .andExpect(jsonPath("$.title", is(article.getTitle())))
+                .andExpect(jsonPath("$.content", is(article.getContent())))
+                .andExpect(jsonPath("$.tags[0].name", is(article.getTags().get(0).getName())))
+                .andExpect(jsonPath("$.publishDate", is(article.getPublishDate().toString())));
     }
 }
