@@ -8,7 +8,7 @@ import java.util.List;
 @Service
 public interface ArticleService {
 
-    List<Article> findAll();
+    List<Article> getAllArticles();
     Article findById(Long id);
     Article createArticle(Article article);
     void deleteArticle(Long id);
