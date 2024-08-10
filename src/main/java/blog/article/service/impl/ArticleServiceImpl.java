@@ -6,6 +6,7 @@ import blog.article.service.ArticleService;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 public class ArticleServiceImpl implements ArticleService {
 
@@ -16,17 +17,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public List<Article> getAllArticles() {
-        return articleRepository.findAll();
-    }
-
-    @Override
-    public Article findById(Long id) {
-        return articleRepository.findById(id).orElseThrow(NoSuchElementException::new);
-    }
-
-    @Override
-    public Article createArticle(Article article) {
+    public Article saveArticle(Article article) {
 
         if (articleRepository.existsById(article.getId())) {
             throw new IllegalArgumentException("Article already exists!");
@@ -35,23 +26,24 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
+    public List<Article> getAllArticles() {
+        return articleRepository.findAll();
+    }
+
+    @Override
+    public Optional<Article> getArticleById(Long id) {
+
+        return articleRepository.findById(id);
+    }
+
+    @Override
     public void deleteArticle(Long id) {
         articleRepository.deleteById(id);
     }
 
     @Override
-    public Article updateArticle(Article newArticle, Long id) {
+    public Article updateArticle(Article updatedArticle) {
 
-        return articleRepository.findById(id)
-                .map(article -> {
-                    article.setTitle(article.getTitle());
-                    article.setContent(article.getContent());
-                    article.setTags(article.getTags());
-                    article.setPublishDate(article.getPublishDate());
-                    return articleRepository.save(article);
-                })
-                .orElseGet(() -> {
-                    return articleRepository.save(newArticle);
-                });
+        return articleRepository.save(updatedArticle);
     }
 }
