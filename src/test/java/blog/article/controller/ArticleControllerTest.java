@@ -161,7 +161,7 @@ public class ArticleControllerTest {
                 .andDo(print());
     }
 
-    // JUnit test for update employee REST API - positive scenario
+    // JUnit test for update article REST API - positive scenario
     @Test
     void givenUpdatedArticle_whenUpdateArticle_thenReturnUpdateArticleObject() throws Exception {
 
@@ -198,6 +198,42 @@ public class ArticleControllerTest {
                 .andExpect(jsonPath("$.content", is(updatedArticle.getContent())))
                 .andExpect(jsonPath("$.tags[0].name", is(updatedArticle.getTags().get(0).getName())))
                 .andExpect(jsonPath("$.publishDate", is(updatedArticle.getPublishDate().toString())));
+    }
+
+    // JUnit test for update article REST API - negative scenario
+    @Test
+    void givenUpdatedArticle_whenUpdateArticle_thenReturn404() throws Exception {
+
+        // given - precondition or setup
+        Long articleId = 1L;
+        Tag tag = Tag.builder().name("Tag name").build();
+        Article savedArticle = Article.builder()
+                .title("Title Article")
+                .content("Content of article")
+                .tags(List.of(tag))
+                .publishDate(LocalDate.now())
+                .build();
+
+        tag = Tag.builder().name("Other Tag name").build();
+        Article updatedArticle = Article.builder()
+                .title("Updated Title Article")
+                .content("Updated content of article")
+                .tags(List.of(tag))
+                .publishDate(LocalDate.now())
+                .build();
+
+        given(service.getArticleById(articleId)).willReturn(Optional.empty());
+        given(service.updateArticle(any(Article.class)))
+                .willAnswer((invocation) -> invocation.getArgument(0));
+
+        // when -  action or the behaviour that we are going test
+        ResultActions response = mockMvc.perform(put("/articles/{id}", articleId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updatedArticle)));
+
+        // then - verify the output
+        response.andExpect(status().isNotFound())
+                .andDo(print());
     }
 
     // JUnit test for delete article REST API
