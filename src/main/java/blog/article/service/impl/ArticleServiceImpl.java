@@ -3,10 +3,12 @@ package blog.article.service.impl;
 import blog.article.model.Article;
 import blog.article.repository.ArticleRepository;
 import blog.article.service.ArticleService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class ArticleServiceImpl implements ArticleService {
 
     private final ArticleRepository articleRepository;
