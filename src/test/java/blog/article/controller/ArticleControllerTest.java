@@ -135,6 +135,32 @@ public class ArticleControllerTest {
                 .andExpect(jsonPath("$.publishDate", is(article.getPublishDate().toString())));
     }
 
+    // negative scenario - invalid article id
+    // JUnit test for GET article by id REST API
+    @Test
+    void givenInvalidArticleId_whenGetArticleById_thenReturnEmpty() throws Exception {
+
+        // given - precondition or setup
+        Long articleId = 1L;
+        Tag tag = Tag.builder().name("Tag name").build();
+        Article article = Article.builder()
+                .id(1L)
+                .title("Title Article")
+                .content("Content of article")
+                .tags(List.of(tag))
+                .publishDate(LocalDate.now())
+                .build();
+
+        given(service.getArticleById(articleId)).willReturn(Optional.empty());
+
+        // when -  action or the behaviour that we are going test
+        ResultActions response = mockMvc.perform(get("/articles/{id}", articleId));
+
+        // then - verify the output
+        response.andExpect(status().isNotFound())
+                .andDo(print());
+    }
+
     // JUnit test for update employee REST API - positive scenario
     @Test
     void givenUpdatedArticle_whenUpdateArticle_thenReturnUpdateArticleObject() throws Exception {
