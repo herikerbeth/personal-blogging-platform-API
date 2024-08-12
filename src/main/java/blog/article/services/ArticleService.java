@@ -1,6 +1,6 @@
-package blog.article.service;
+package blog.article.services;
 
-import blog.article.model.Article;
+import blog.article.domain.Article;
 
 import java.util.List;
 import java.util.Optional;

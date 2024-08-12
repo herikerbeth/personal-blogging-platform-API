@@ -1,7 +1,7 @@
-package blog.article.controller;
+package blog.article.controllers;
 
-import blog.article.model.Article;
-import blog.article.service.ArticleService;
+import blog.article.domain.Article;
+import blog.article.services.ArticleService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

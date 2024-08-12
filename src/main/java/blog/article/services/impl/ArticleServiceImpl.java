@@ -1,8 +1,8 @@
-package blog.article.service.impl;
+package blog.article.services.impl;
 
-import blog.article.model.Article;
-import blog.article.repository.ArticleRepository;
-import blog.article.service.ArticleService;
+import blog.article.domain.Article;
+import blog.article.repositories.ArticleRepository;
+import blog.article.services.ArticleService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

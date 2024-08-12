@@ -1,8 +1,8 @@
-package blog.article.controller;
+package blog.article.controllers;
 
-import blog.article.model.Article;
-import blog.article.model.Tag;
-import blog.article.service.ArticleService;
+import blog.article.domain.Article;
+import blog.article.domain.Tag;
+import blog.article.services.ArticleService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

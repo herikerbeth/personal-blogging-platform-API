@@ -1,4 +1,4 @@
-package blog.article.model;
+package blog.article.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
