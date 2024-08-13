@@ -18,7 +18,7 @@ import static blog.TestData.testArticleEntity;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ArticleServiceImplTest {
@@ -119,6 +119,19 @@ public class ArticleServiceImplTest {
 
         // then - verify the result or output using assert statements
         assertEquals(updatedArticle, result);
+    }
+
+    @Test
+    void test_Delete_By_Id_Deletes_Article() {
+
+        // given - precondition or setup
+        final Long id = 1L;
+
+        // when - action or behaviour that we are going test
+        underTest.deleteArticle(id);
+
+        // then - verify the result or output using assert statements
+        verify(articleRepository, times(1)).deleteById(eq(id));
     }
 
     private ArticleEntity articleToArticleEntity(Article article) {
