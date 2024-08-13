@@ -8,6 +8,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +31,8 @@ public class ArticleServiceImplTest {
 
     @InjectMocks
     private ArticleServiceImpl underTest;
+
+    private static final Logger log = LoggerFactory.getLogger(ArticleServiceImplTest.class);
 
     @Test
     void test_That_Article_Is_Saved() {
@@ -122,7 +127,7 @@ public class ArticleServiceImplTest {
     }
 
     @Test
-    void test_Delete_By_Id_Deletes_Article() {
+    void test_Delete_Article_Deletes_Article() {
 
         // given - precondition or setup
         final Long id = 1L;
@@ -132,6 +137,18 @@ public class ArticleServiceImplTest {
 
         // then - verify the result or output using assert statements
         verify(articleRepository, times(1)).deleteById(eq(id));
+    }
+
+    @Test
+    void test_Delete_Article_ThrowsEmptyResultDataAccessException() {
+
+        final Long articleId = 1L;
+
+        doThrow(new EmptyResultDataAccessException(1)).when(articleRepository).deleteById(articleId);
+
+        underTest.deleteArticle(articleId);
+
+        verify(articleRepository, times(1)).deleteById(articleId);
     }
 
     private ArticleEntity articleToArticleEntity(Article article) {
