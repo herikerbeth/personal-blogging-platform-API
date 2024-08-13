@@ -88,4 +88,19 @@ public class ArticleServiceImplTest {
         // then - verify the result or output using assert statements
         assertEquals(Optional.of(article), result);
     }
+
+    @Test
+    void test_That_Find_By_Id_Returns_Empty_When_No_Article() {
+
+        // given - precondition or setup
+        final Long id = 1L;
+
+        // when - action or behaviour that we are going test
+        when(articleRepository.findById(eq(id))).thenReturn(Optional.empty());
+
+        final Optional<Article> result = underTest.getArticleById(id);
+
+        // then - verify the result or output using assert statements
+        assertEquals(Optional.empty(), result);
+    }
 }
