@@ -1,5 +1,6 @@
 package blog.article.controllers;
 
+import blog.TestData;
 import blog.article.domain.Article;
 import blog.article.domain.Tag;
 import blog.article.services.ArticleService;
@@ -41,14 +42,7 @@ public class ArticleControllerTest {
     void givenArticleObject_whenCreateArticle_thenReturnSavedArticle() throws Exception {
 
         // given - precondition or setup
-        Tag tag = Tag.builder().name("Tag name").build();
-        Article article = Article.builder()
-                .id(1L)
-                .title("Title Article")
-                .content("Content of article")
-                .tags(List.of(tag))
-                .publishDate(LocalDate.now())
-                .build();
+        final Article article = TestData.testArticle();
 
         given(service.saveArticle(any(Article.class)))
                 .willAnswer((invocation) -> invocation.getArgument(0));
@@ -74,21 +68,8 @@ public class ArticleControllerTest {
 
         // given - precondition or setup
         List<Article> listOfArticles = new ArrayList<>();
-        Tag tag = Tag.builder().name("Tag name").build();
-        Article article = Article.builder()
-                .id(1L)
-                .title("Title Article")
-                .content("Content of article")
-                .tags(List.of(tag))
-                .publishDate(LocalDate.now())
-                .build();
-        Article article1 = Article.builder()
-                .id(2L)
-                .title("Title Article1")
-                .content("Content of article1")
-                .tags(List.of(tag))
-                .publishDate(LocalDate.now())
-                .build();
+        final Article article = TestData.testArticle();
+        final Article article1 = TestData.testArticle();
 
         listOfArticles.add(article);
         listOfArticles.add(article1);
@@ -110,14 +91,7 @@ public class ArticleControllerTest {
 
         // given - precondition or setup
         Long articleId = 1L;
-        Tag tag = Tag.builder().name("Tag name").build();
-        Article article = Article.builder()
-                .id(1L)
-                .title("Title Article")
-                .content("Content of article")
-                .tags(List.of(tag))
-                .publishDate(LocalDate.now())
-                .build();
+        Article article = TestData.testArticle();
 
         given(service.getArticleById(articleId))
                 .willReturn(Optional.of(article));
@@ -142,14 +116,7 @@ public class ArticleControllerTest {
 
         // given - precondition or setup
         Long articleId = 1L;
-        Tag tag = Tag.builder().name("Tag name").build();
-        Article article = Article.builder()
-                .id(1L)
-                .title("Title Article")
-                .content("Content of article")
-                .tags(List.of(tag))
-                .publishDate(LocalDate.now())
-                .build();
+        Article article = TestData.testArticle();
 
         given(service.getArticleById(articleId)).willReturn(Optional.empty());
 
@@ -167,15 +134,9 @@ public class ArticleControllerTest {
 
         // given - condition or setup
         Long articleId = 1L;
-        Tag tag = Tag.builder().name("Tag name").build();
-        Article savedArticle = Article.builder()
-                .title("Title Article")
-                .content("Content of article")
-                .tags(List.of(tag))
-                .publishDate(LocalDate.now())
-                .build();
+        Article savedArticle = TestData.testArticle();
 
-        tag = Tag.builder().name("Other Tag name").build();
+        Tag tag = Tag.builder().name("Other Tag name").build();
         Article updatedArticle = Article.builder()
                 .title("Updated Title Article")
                 .content("Updated content of article")
@@ -206,15 +167,9 @@ public class ArticleControllerTest {
 
         // given - precondition or setup
         Long articleId = 1L;
-        Tag tag = Tag.builder().name("Tag name").build();
-        Article savedArticle = Article.builder()
-                .title("Title Article")
-                .content("Content of article")
-                .tags(List.of(tag))
-                .publishDate(LocalDate.now())
-                .build();
+        Article savedArticle = TestData.testArticle();
 
-        tag = Tag.builder().name("Other Tag name").build();
+        Tag tag = Tag.builder().name("Other Tag name").build();
         Article updatedArticle = Article.builder()
                 .title("Updated Title Article")
                 .content("Updated content of article")
@@ -248,7 +203,7 @@ public class ArticleControllerTest {
         ResultActions response = mockMvc.perform(delete("/articles/{id}", articleId));
 
         // then - verify the output
-        response.andExpect(status().isOk())
+        response.andExpect(status().isNoContent())
                 .andDo(print());
     }
 }
