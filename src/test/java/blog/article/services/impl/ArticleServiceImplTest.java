@@ -16,6 +16,7 @@ import java.util.Optional;
 import static blog.TestData.testArticle;
 import static blog.TestData.testArticleEntity;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
@@ -102,5 +103,32 @@ public class ArticleServiceImplTest {
 
         // then - verify the result or output using assert statements
         assertEquals(Optional.empty(), result);
+    }
+
+    @Test
+    void test_That_Article_Is_Updated() {
+
+        // given - precondition or setup
+        final Article updatedArticle = testArticle();
+        final ArticleEntity updatedArticleEntity = articleToArticleEntity(updatedArticle);
+
+        // when - action or behaviour that we are going test
+        when(articleRepository.save(any(ArticleEntity.class))).thenReturn(updatedArticleEntity);
+
+        final Article result = underTest.updateArticle(updatedArticle);
+
+        // then - verify the result or output using assert statements
+        assertEquals(updatedArticle, result);
+    }
+
+    private ArticleEntity articleToArticleEntity(Article article) {
+
+        return ArticleEntity.builder()
+                .id(article.getId())
+                .title(article.getTitle())
+                .content(article.getContent())
+                .tags(article.getTags())
+                .publishDate(article.getPublishDate())
+                .build();
     }
 }
