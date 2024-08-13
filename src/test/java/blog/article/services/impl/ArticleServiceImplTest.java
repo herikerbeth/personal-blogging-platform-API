@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static blog.TestData.testArticle;
 import static blog.TestData.testArticleEntity;
@@ -69,5 +70,22 @@ public class ArticleServiceImplTest {
 
         // then - verify the result or output using assert statements
         assertEquals(0, result.size());
+    }
+
+    @Test
+    void test_That_Find_By_Id_Returns_Article_When_Exists() {
+
+        // given - precondition or setup
+        final Article article = testArticle();
+
+        final ArticleEntity articleEntity = testArticleEntity();
+
+        // when - action or behaviour that we are going test
+        when(articleRepository.findById(eq(article.getId()))).thenReturn(Optional.of(articleEntity));
+
+        final Optional<Article> result = underTest.getArticleById(article.getId());
+
+        // then - verify the result or output using assert statements
+        assertEquals(Optional.of(article), result);
     }
 }
