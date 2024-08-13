@@ -9,6 +9,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -23,30 +24,34 @@ public class ArticleController {
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
     @PostMapping
-    public ResponseEntity<Article> createArticle(@RequestBody Article article) {
+    public ResponseEntity<Article> createArticle(@RequestBody final Article article) {
 
-        var articleCreated = service.saveArticle(article);
+        final Article savedArticle = service.saveArticle(article);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(articleCreated.getId())
+                .buildAndExpand(savedArticle.getId())
                 .toUri();
-        return ResponseEntity.created(location).body(articleCreated);
+        return ResponseEntity.created(location).body(savedArticle);
     }
 
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     @GetMapping
-    public List<Article> getAllArticles() {
+    public ResponseEntity<List<Article>> getAllArticles() {
 
-        return service.getAllArticles();
+        return new ResponseEntity<>(service.getAllArticles(), HttpStatus.OK);
     }
 
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     @GetMapping("/{id}")
-    public ResponseEntity<Article> getArticle(@PathVariable Long id) {
+    public ResponseEntity<Article> getArticle(@PathVariable final Long id) {
 
-        return service.getArticleById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+        final Optional<Article> foundArticle = service.getArticleById(id);
+        return foundArticle
+                .map(article -> new ResponseEntity<>(article, HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     @PutMapping("/{id}")
     public ResponseEntity<Article> updateArticle(@PathVariable Long id, @RequestBody Article article) {
 
@@ -61,13 +66,14 @@ public class ArticleController {
                     Article updatedArticle = service.updateArticle(savedArticle);
                     return new ResponseEntity<>(updatedArticle, HttpStatus.OK);
                 })
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteArticle(@PathVariable Long id) {
+    public ResponseEntity<String> deleteArticle(@PathVariable final Long id) {
 
         service.deleteArticle(id);
-        return new ResponseEntity<String>("Article deleted successfully!.", HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
