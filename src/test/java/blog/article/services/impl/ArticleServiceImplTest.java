@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static blog.TestData.testArticle;
@@ -56,5 +57,17 @@ public class ArticleServiceImplTest {
 
         // then - verify the result or output using assert statements
         assertEquals(1, result.size());
+    }
+
+    @Test
+    void test_List_Articles_Returns_Empty_List_When_No_Articles_Exist() {
+
+        // when - action or behaviour that we are going test
+        when(articleRepository.findAll()).thenReturn(new ArrayList<>());
+
+        final List<Article> result = underTest.getAllArticles();
+
+        // then - verify the result or output using assert statements
+        assertEquals(0, result.size());
     }
 }
