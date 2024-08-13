@@ -9,6 +9,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+
 import static blog.TestData.testArticle;
 import static blog.TestData.testArticleEntity;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -39,5 +41,20 @@ public class ArticleServiceImplTest {
 
         // then - verify the result or output using assert statements
         assertEquals(article, result);
+    }
+
+    @Test
+    void test_List_Articles_Returns_Articles_When_Exist() {
+
+        // given - precondition or setup
+        final ArticleEntity articleEntity = testArticleEntity();
+
+        // when - action or behaviour that we are going test
+        when(articleRepository.findAll()).thenReturn(List.of(articleEntity));
+
+        final List<Article> result = underTest.getAllArticles();
+
+        // then - verify the result or output using assert statements
+        assertEquals(1, result.size());
     }
 }
