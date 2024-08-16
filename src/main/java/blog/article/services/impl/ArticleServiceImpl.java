@@ -1,5 +1,6 @@
 package blog.article.services.impl;
 
+import blog.article.controllers.exceptions.ArticleNotFoundException;
 import blog.article.domain.Article;
 import blog.article.domain.ArticleEntity;
 import blog.article.repositories.ArticleRepository;
@@ -53,7 +54,7 @@ public class ArticleServiceImpl implements ArticleService {
     public Article getArticleById(Long id) {
 
         ArticleEntity foundArticle = articleRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(String.valueOf(id)));
+                .orElseThrow(() -> new ArticleNotFoundException(id));
         return new Article(foundArticle.getId(), foundArticle.getTitle(), foundArticle.getContent(),
                 foundArticle.getTags(), foundArticle.getPublishDate());
     }
