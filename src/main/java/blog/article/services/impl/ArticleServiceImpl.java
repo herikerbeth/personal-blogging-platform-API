@@ -25,32 +25,18 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public Article saveArticle(final Article article) {
-        final ArticleEntity articleEntity = articleToArticleEntity(article);
-        final ArticleEntity savedArticleEntity = articleRepository.save(articleEntity);
-        return articleEntityToArticle(savedArticleEntity);
-    }
-
-    private ArticleEntity articleToArticleEntity(Article article) {
-
-        return ArticleEntity.builder()
+    public Article saveArticle(Article article) {
+        ArticleEntity articleEntity = ArticleEntity.builder()
                 .id(article.getId())
                 .title(article.getTitle())
                 .content(article.getContent())
-                .tags(article.getTags())
                 .publishDate(article.getPublishDate())
+                .tags(article.getTags())
                 .build();
-    }
+        ArticleEntity savedArticle = articleRepository.save(articleEntity);
 
-    private Article articleEntityToArticle(ArticleEntity articleEntity) {
-
-        return Article.builder()
-                .id(articleEntity.getId())
-                .title(articleEntity.getTitle())
-                .content(articleEntity.getContent())
-                .tags(articleEntity.getTags())
-                .publishDate(articleEntity.getPublishDate())
-                .build();
+        return new Article(savedArticle.getId(), savedArticle.getTitle(), savedArticle.getContent(),
+                savedArticle.getTags(), savedArticle.getPublishDate());
     }
 
     @Override
