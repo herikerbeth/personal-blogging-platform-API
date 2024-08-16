@@ -1,37 +1,39 @@
 package blog.article.controllers;
 
+import blog.article.assemblers.ArticleModelAssembler;
 import blog.article.domain.Article;
 import blog.article.services.ArticleService;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
 
 @RestController
-@RequestMapping("/articles")
 public class ArticleController {
 
     private final ArticleService service;
 
-    public ArticleController(ArticleService service) {
+    private final ArticleModelAssembler assembler;
+
+    public ArticleController(ArticleService service, ArticleModelAssembler assembler) {
         this.service = service;
+        this.assembler = assembler;
     }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    @PostMapping
-    public ResponseEntity<Article> createArticle(@RequestBody final Article article) {
+    @PostMapping(path = "/articles")
+    public ResponseEntity<?> createArticle(@RequestBody Article article) {
 
-        final Article savedArticle = service.saveArticle(article);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(savedArticle.getId())
-                .toUri();
-        return ResponseEntity.created(location).body(savedArticle);
+        EntityModel<Article> savedArticle =  assembler.toModel(service.saveArticle(article));
+
+        return ResponseEntity
+                .created(savedArticle.getRequiredLink(IanaLinkRelations.SELF).toUri())
+                .body(savedArticle);
     }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
