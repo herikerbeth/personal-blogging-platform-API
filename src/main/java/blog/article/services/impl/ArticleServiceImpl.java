@@ -59,11 +59,22 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public Article updateArticle(Article updatedArticle) {
+    public Article updateArticle(Long id, Article updateArticleDTO) {
 
-        final ArticleEntity articleEntity = articleToArticleEntity(updatedArticle);
-        final ArticleEntity savedArticleEntity = articleRepository.save(articleEntity);
-        return articleEntityToArticle(savedArticleEntity);
+        Optional<ArticleEntity> article = articleRepository.findById(id);
+
+        if (article.isPresent()) {
+            ArticleEntity articleToUpdate = article.get();
+            articleToUpdate.setTitle(updateArticleDTO.getTitle());
+            articleToUpdate.setContent(updateArticleDTO.getContent());
+            articleToUpdate.setTags(updateArticleDTO.getTags());
+            articleToUpdate.setPublishDate(updateArticleDTO.getPublishDate());
+            ArticleEntity updatedArticle = articleRepository.save(articleToUpdate);
+            return new Article(updatedArticle.getId(), updatedArticle.getTitle(), updatedArticle.getContent(),
+                    updatedArticle.getTags(), updatedArticle.getPublishDate());
+        } else {
+            throw new EntityNotFoundException(String.valueOf(id));
+        }
     }
 
     @Override
