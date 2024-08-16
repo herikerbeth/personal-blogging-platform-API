@@ -25,6 +25,7 @@ import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.when;
@@ -162,16 +163,22 @@ public class ArticleControllerTest {
         Long articleId = 1L;
         Article savedArticle = TestData.testArticle();
 
-        Tag tag = Tag.builder().name("Other Tag name").build();
+        Tag tag = Tag.builder().id(1L).name("Other Tag name").build();
         Article updatedArticle = Article.builder()
+                .id(articleId)
                 .title("Updated Title Article")
                 .content("Updated content of article")
                 .tags(List.of(tag))
                 .publishDate(LocalDate.now())
                 .build();
-        given(service.getArticleById(articleId)).willReturn(Optional.of(savedArticle));
-        given(service.updateArticle(any(Article.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+
+        given(service.updateArticle(eq(articleId), any(Article.class))).willReturn(updatedArticle);
+
+        EntityModel<Article> articleEntityModel = EntityModel.of(updatedArticle,
+                linkTo(methodOn(ArticleController.class).getArticle(articleId)).withSelfRel(),
+                linkTo(methodOn(ArticleController.class).getAllArticles()).withRel("articles"));
+
+        given(assembler.toModel(any(Article.class))).willReturn(articleEntityModel);
 
         // when -  action or the behaviour that we are going test
         ResultActions response = mockMvc.perform(put("/articles/{id}", articleId)
@@ -179,8 +186,9 @@ public class ArticleControllerTest {
                 .content(objectMapper.writeValueAsString(updatedArticle)));
 
         // then - verify the output
-        response.andExpect(status().isOk())
+        response.andExpect(status().isCreated())
                 .andDo(print())
+                .andExpect(jsonPath("$.id", is(articleId.intValue())))
                 .andExpect(jsonPath("$.title", is(updatedArticle.getTitle())))
                 .andExpect(jsonPath("$.content", is(updatedArticle.getContent())))
                 .andExpect(jsonPath("$.tags[0].name", is(updatedArticle.getTags().get(0).getName())))
