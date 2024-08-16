@@ -70,8 +70,8 @@ public class ArticleController {
     }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteArticle(@PathVariable final Long id) {
+    @DeleteMapping("/articles/{id}")
+    public ResponseEntity<?> deleteArticle(@PathVariable final Long id) {
 
         service.deleteArticle(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
