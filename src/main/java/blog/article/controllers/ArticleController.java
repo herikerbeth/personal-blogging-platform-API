@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
@@ -52,13 +51,11 @@ public class ArticleController {
     }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    @GetMapping("/{id}")
-    public ResponseEntity<Article> getArticle(@PathVariable final Long id) {
+    @GetMapping(path = "/articles/{id}")
+    public EntityModel<Article> getArticle(@PathVariable Long id) {
 
-        final Optional<Article> foundArticle = service.getArticleById(id);
-        return foundArticle
-                .map(article -> new ResponseEntity<>(article, HttpStatus.OK))
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        Article foundArticle = service.getArticleById(id);
+        return assembler.toModel(foundArticle);
     }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
