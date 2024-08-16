@@ -12,12 +12,14 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -87,21 +89,22 @@ public class ArticleControllerTest {
     void givenListOfArticles_whenGetAllArticles_thenReturnArticlesList() throws Exception {
 
         // given - precondition or setup
-        List<Article> listOfArticles = new ArrayList<>();
         final Article article = TestData.testArticle();
-        final Article article1 = TestData.testArticle();
 
-        listOfArticles.add(article);
-        listOfArticles.add(article1);
-        given(service.getAllArticles()).willReturn(listOfArticles);
+        List<EntityModel<Article>> listOfArticles = Arrays.asList(EntityModel.of(article));
+        CollectionModel<EntityModel<Article>> collectionModel = CollectionModel.of(listOfArticles);
 
         // when - action or the behaviour that we are going test
-        ResultActions response = mockMvc.perform(get("/articles"));
+        when(service.getAllArticles()).thenReturn(Arrays.asList(article));
+        when(assembler.toModel(any(Article.class))).thenReturn(EntityModel.of(article));
+
+        ResultActions response = mockMvc.perform(get("/articles")
+                .accept(MediaType.APPLICATION_JSON));
 
         // then - verify the output
         response.andExpect(status().isOk())
                 .andDo(print())
-                .andExpect(jsonPath("$.size()", is(listOfArticles.size())));
+                .andExpect(jsonPath("$._embedded.articleList[0].title").value(article.getTitle()));
     }
 
     // positive scenario - valid Article id
