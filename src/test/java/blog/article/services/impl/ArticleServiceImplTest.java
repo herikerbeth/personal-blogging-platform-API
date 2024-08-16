@@ -113,13 +113,17 @@ public class ArticleServiceImplTest {
     void test_That_Article_Is_Updated() {
 
         // given - precondition or setup
+        final Long id = 1L;
         final Article updatedArticle = testArticle();
         final ArticleEntity updatedArticleEntity = articleToArticleEntity(updatedArticle);
 
         // when - action or behaviour that we are going test
+        when(articleRepository.findById(id)).thenReturn(Optional.of(updatedArticleEntity));
+
         when(articleRepository.save(any(ArticleEntity.class))).thenReturn(updatedArticleEntity);
 
-        final Article result = underTest.updateArticle(updatedArticle);
+        final Article result = underTest.updateArticle(id, updatedArticle);
+        assertNotNull(result);
 
         // then - verify the result or output using assert statements
         assertEquals(updatedArticle, result);
