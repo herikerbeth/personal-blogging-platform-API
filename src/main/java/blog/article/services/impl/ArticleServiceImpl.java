@@ -4,6 +4,7 @@ import blog.article.domain.Article;
 import blog.article.domain.ArticleEntity;
 import blog.article.repositories.ArticleRepository;
 import blog.article.services.ArticleService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -49,10 +50,12 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public Optional<Article> getArticleById(Long id) {
+    public Article getArticleById(Long id) {
 
-        final Optional<ArticleEntity> foundArticle = articleRepository.findById(id);
-        return foundArticle.map(article -> articleEntityToArticle(article));
+        ArticleEntity foundArticle = articleRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(String.valueOf(id)));
+        return new Article(foundArticle.getId(), foundArticle.getTitle(), foundArticle.getContent(),
+                foundArticle.getTags(), foundArticle.getPublishDate());
     }
 
     @Override
