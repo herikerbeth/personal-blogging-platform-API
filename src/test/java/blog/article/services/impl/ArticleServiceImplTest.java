@@ -89,7 +89,7 @@ public class ArticleServiceImplTest {
         // when - action or behaviour that we are going test
         when(articleRepository.findById(eq(article.getId()))).thenReturn(Optional.of(articleEntity));
 
-        final Optional<Article> result = underTest.getArticleById(article.getId());
+        final Article result = underTest.getArticleById(article.getId());
 
         // then - verify the result or output using assert statements
         assertEquals(Optional.of(article), result);
