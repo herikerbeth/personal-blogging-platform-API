@@ -116,11 +116,14 @@ public class ArticleControllerTest {
         Long articleId = 1L;
         Article article = TestData.testArticle();
 
-        given(service.getArticleById(articleId))
-                .willReturn(Optional.of(article));
+        EntityModel<Article> articleEntityModel = EntityModel.of(article);
 
         // when - action or behaviour that we are going test
-        ResultActions response = mockMvc.perform(get("/articles/{id}", articleId));
+        when(service.getArticleById(articleId)).thenReturn(article);
+        when(assembler.toModel(any(Article.class))).thenReturn(articleEntityModel);
+
+        ResultActions response = mockMvc.perform(get("/articles/{id}", articleId)
+                .accept(MediaType.APPLICATION_JSON));
 
         // then - verify the result or output using assert statements
         response.andExpect(status().isOk())
