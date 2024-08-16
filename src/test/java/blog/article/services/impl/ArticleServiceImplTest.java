@@ -93,7 +93,7 @@ public class ArticleServiceImplTest {
         final Article result = underTest.getArticleById(article.getId());
 
         // then - verify the result or output using assert statements
-        assertEquals(Optional.of(article), result);
+        assertEquals(article, result);
     }
 
     @Test
