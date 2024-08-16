@@ -3,6 +3,7 @@ package blog.article.controllers;
 import blog.article.assemblers.ArticleModelAssembler;
 import blog.article.domain.Article;
 import blog.article.services.ArticleService;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 
 @RestController
@@ -37,10 +41,14 @@ public class ArticleController {
     }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    @GetMapping
-    public ResponseEntity<List<Article>> getAllArticles() {
+    @GetMapping(path = "/articles")
+    public CollectionModel<EntityModel<Article>> getAllArticles() {
 
-        return new ResponseEntity<>(service.getAllArticles(), HttpStatus.OK);
+        List<EntityModel<Article>> articles = service.getAllArticles().stream()
+                .map(assembler::toModel)
+                .collect(Collectors.toList());
+
+        return CollectionModel.of(articles, linkTo(methodOn(ArticleController.class).getAllArticles()).withSelfRel());
     }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
