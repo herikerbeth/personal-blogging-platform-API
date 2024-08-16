@@ -1,9 +1,9 @@
 package blog.article.services.impl;
 
+import blog.article.controllers.exceptions.ArticleNotFoundException;
 import blog.article.domain.Article;
 import blog.article.domain.ArticleEntity;
 import blog.article.repositories.ArticleRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -106,7 +106,7 @@ public class ArticleServiceImplTest {
         when(articleRepository.findById(eq(id))).thenReturn(Optional.empty());
 
         // then - verify the result or output using assert statements
-        assertThrows(EntityNotFoundException.class, () -> underTest.getArticleById(id));
+        assertThrows(ArticleNotFoundException.class, () -> underTest.getArticleById(id));
     }
 
     @Test
