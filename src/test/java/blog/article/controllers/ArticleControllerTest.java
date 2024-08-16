@@ -1,20 +1,23 @@
 package blog.article.controllers;
 
 import blog.TestData;
+import blog.article.assemblers.ArticleModelAssembler;
 import blog.article.domain.Article;
 import blog.article.domain.Tag;
 import blog.article.services.ArticleService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +25,9 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.Mockito.when;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -38,16 +44,28 @@ public class ArticleControllerTest {
     @MockBean
     private ArticleService service;
 
+    @MockBean
+    private ArticleModelAssembler assembler;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
     @Test
     void givenArticleObject_whenCreateArticle_thenReturnSavedArticle() throws Exception {
 
         // given - precondition or setup
         final Article article = TestData.testArticle();
 
-        given(service.saveArticle(any(Article.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
+        EntityModel<Article> articleEntityModel = EntityModel.of(article,
+                linkTo(methodOn(ArticleController.class).getArticle(article.getId())).withSelfRel(),
+                linkTo(methodOn(ArticleController.class).getAllArticles()).withRel("articles"));
 
         // when - action or behaviour that we are going test
+        when(service.saveArticle(any(Article.class))).thenReturn(article);
+        when(assembler.toModel(any(Article.class))).thenReturn(articleEntityModel);
+
         ResultActions response = mockMvc.perform(post("/articles")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(article)));
@@ -59,7 +77,9 @@ public class ArticleControllerTest {
                 .andExpect(jsonPath("$.title", is(article.getTitle())))
                 .andExpect(jsonPath("$.content", is(article.getContent())))
                 .andExpect(jsonPath("$.tags[0].name", is(article.getTags().get(0).getName())))
-                .andExpect(jsonPath("$.publishDate", is(article.getPublishDate().toString())));
+                .andExpect(jsonPath("$.publishDate", is(article.getPublishDate().toString())))
+                .andExpect(jsonPath("$._links.self.href").exists())
+                .andExpect(jsonPath("$._links.articles.href").exists());
     }
 
     // JUnit test for GET All articles REST API
