@@ -59,21 +59,14 @@ public class ArticleController {
     }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
-    @PutMapping("/{id}")
-    public ResponseEntity<Article> updateArticle(@PathVariable Long id, @RequestBody Article article) {
+    @PutMapping("/articles/{id}")
+    public ResponseEntity<?> updateArticle(@PathVariable Long id, @RequestBody Article article) {
 
-        return service.getArticleById(id)
-                .map(savedArticle -> {
-
-                    savedArticle.setTitle(article.getTitle());
-                    savedArticle.setContent(article.getContent());
-                    savedArticle.setTags(article.getTags());
-                    savedArticle.setPublishDate(article.getPublishDate());
-
-                    Article updatedArticle = service.updateArticle(savedArticle);
-                    return new ResponseEntity<>(updatedArticle, HttpStatus.OK);
-                })
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        Article updatedArticle = service.updateArticle(id, article);
+        EntityModel<Article> articleDTOEntityModel = assembler.toModel(updatedArticle);
+        return ResponseEntity
+                .created(articleDTOEntityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
+                .body(articleDTOEntityModel);
     }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
