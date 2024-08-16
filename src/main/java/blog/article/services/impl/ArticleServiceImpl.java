@@ -42,9 +42,9 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public List<Article> getAllArticles() {
 
-        final List<ArticleEntity> foundArticles = articleRepository.findAll();
-        return foundArticles.stream()
-                .map(article -> articleEntityToArticle(article))
+        return articleRepository.findAll().stream()
+                .map(article -> new Article(article.getId(), article.getTitle(), article.getContent(),
+                        article.getTags(), article.getPublishDate()))
                 .collect(Collectors.toList());
     }
 
