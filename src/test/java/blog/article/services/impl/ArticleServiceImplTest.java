@@ -3,6 +3,7 @@ package blog.article.services.impl;
 import blog.article.domain.Article;
 import blog.article.domain.ArticleEntity;
 import blog.article.repositories.ArticleRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,7 +19,7 @@ import java.util.Optional;
 
 import static blog.TestData.testArticle;
 import static blog.TestData.testArticleEntity;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -96,7 +97,7 @@ public class ArticleServiceImplTest {
     }
 
     @Test
-    void test_That_Find_By_Id_Returns_Empty_When_No_Article() {
+    void test_That_Find_By_Id_Throws_Exception_When_No_Article() {
 
         // given - precondition or setup
         final Long id = 1L;
@@ -104,10 +105,8 @@ public class ArticleServiceImplTest {
         // when - action or behaviour that we are going test
         when(articleRepository.findById(eq(id))).thenReturn(Optional.empty());
 
-        final Optional<Article> result = underTest.getArticleById(id);
-
         // then - verify the result or output using assert statements
-        assertEquals(Optional.empty(), result);
+        assertThrows(EntityNotFoundException.class, () -> underTest.getArticleById(id));
     }
 
     @Test
