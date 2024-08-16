@@ -21,7 +21,7 @@ public class ArticleEntity {
     private String title;
     private String content;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Tag> tags;
 
     @Column(name = "publish_date")
