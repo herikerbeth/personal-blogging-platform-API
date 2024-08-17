@@ -130,6 +130,20 @@ public class ArticleServiceImplTest {
     }
 
     @Test
+    void test_That_UpdateArticle_Throws_Exception_When_No_ArticleId() {
+
+        // given - precondition or setup
+        final Long articleId = 1L;
+        final Article updatedArticle = testArticle();
+
+        // when - action or behaviour that we are going test
+        when(articleRepository.findById(eq(articleId))).thenReturn(Optional.empty());
+
+        // then - verify the result or output using assert statements
+        assertThrows(ArticleNotFoundException.class, () -> underTest.updateArticle(articleId, updatedArticle));
+    }
+
+    @Test
     void test_Delete_Article_Deletes_Article() {
 
         // given - precondition or setup
