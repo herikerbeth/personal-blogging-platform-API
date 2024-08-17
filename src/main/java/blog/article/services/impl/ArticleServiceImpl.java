@@ -74,7 +74,7 @@ public class ArticleServiceImpl implements ArticleService {
             return new Article(updatedArticle.getId(), updatedArticle.getTitle(), updatedArticle.getContent(),
                     updatedArticle.getTags(), updatedArticle.getPublishDate());
         } else {
-            throw new EntityNotFoundException(String.valueOf(id));
+            throw new ArticleNotFoundException(id);
         }
     }
 
