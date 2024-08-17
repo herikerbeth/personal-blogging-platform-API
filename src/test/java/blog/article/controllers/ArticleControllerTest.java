@@ -2,6 +2,7 @@ package blog.article.controllers;
 
 import blog.TestData;
 import blog.article.assemblers.ArticleModelAssembler;
+import blog.article.controllers.exceptions.ArticleNotFoundException;
 import blog.article.domain.Article;
 import blog.article.domain.Tag;
 import blog.article.services.ArticleService;
@@ -142,10 +143,9 @@ public class ArticleControllerTest {
     void givenInvalidArticleId_whenGetArticleById_thenReturnEmpty() throws Exception {
 
         // given - precondition or setup
-        Long articleId = 1L;
-        Article article = TestData.testArticle();
+        Long articleId = 99L;
 
-        given(service.getArticleById(articleId)).willReturn(Optional.empty());
+        when(service.getArticleById(articleId)).thenThrow(new ArticleNotFoundException(articleId));
 
         // when -  action or the behaviour that we are going test
         ResultActions response = mockMvc.perform(get("/articles/{id}", articleId));
