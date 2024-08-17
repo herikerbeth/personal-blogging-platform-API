@@ -22,7 +22,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.ArgumentMatchers.any;
@@ -201,21 +200,11 @@ public class ArticleControllerTest {
 
         // given - precondition or setup
         Long articleId = 1L;
-        Article savedArticle = TestData.testArticle();
+        Article updatedArticle = TestData.testArticle();
 
-        Tag tag = Tag.builder().name("Other Tag name").build();
-        Article updatedArticle = Article.builder()
-                .title("Updated Title Article")
-                .content("Updated content of article")
-                .tags(List.of(tag))
-                .publishDate(LocalDate.now())
-                .build();
+        // when - action or the behaviour that we are going test
+        when(service.updateArticle(eq(articleId), any(Article.class))).thenThrow(new ArticleNotFoundException(articleId));
 
-        given(service.getArticleById(articleId)).willReturn(Optional.empty());
-        given(service.updateArticle(any(Article.class)))
-                .willAnswer((invocation) -> invocation.getArgument(0));
-
-        // when -  action or the behaviour that we are going test
         ResultActions response = mockMvc.perform(put("/articles/{id}", articleId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedArticle)));
