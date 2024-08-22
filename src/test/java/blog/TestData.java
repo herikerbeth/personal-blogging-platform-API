@@ -1,8 +1,6 @@
 package blog;
 
-import blog.article.domain.Article;
-import blog.article.domain.ArticleEntity;
-import blog.article.domain.Tag;
+import blog.article.domain.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -14,15 +12,20 @@ public class TestData {
     public TestData() {
     }
 
-    public static Article testArticle() {
+    public static ArticleCreateRequest testArticleRequestDTO() {
 
-        return Article.builder()
-                .id(1L)
-                .title("Title Article")
-                .content("Content of article")
-                .tags(List.of(tag))
-                .publishDate(LocalDate.now())
-                .build();
+        return new ArticleCreateRequest("Title Article", "Content of article", List.of(tag));
+    }
+
+    public static ArticleResponse testArticleResponseDTO() {
+
+        return new ArticleResponse(1L, "Title Article", "Content of article", List.of(tag),
+                LocalDate.now());
+    }
+
+    public static ArticleUpdateRequest testArticleUpdateDTO() {
+
+        return new ArticleUpdateRequest("Title Article", "Content of article", List.of(tag));
     }
 
     public static ArticleEntity testArticleEntity() {
