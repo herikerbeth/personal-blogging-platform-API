@@ -3,8 +3,7 @@ package blog.article.controllers;
 import blog.TestData;
 import blog.article.assemblers.ArticleModelAssembler;
 import blog.article.controllers.exceptions.ArticleNotFoundException;
-import blog.article.domain.Article;
-import blog.article.domain.Tag;
+import blog.article.domain.*;
 import blog.article.services.ArticleService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,8 +18,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -50,6 +47,8 @@ public class ArticleControllerTest {
     @MockBean
     private ArticleModelAssembler assembler;
 
+    private final ArticleMapper articleMapper = ArticleMapper.INSTANCE;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -59,15 +58,18 @@ public class ArticleControllerTest {
     void givenArticleObject_whenCreateArticle_thenReturnSavedArticle() throws Exception {
 
         // given - precondition or setup
-        final Article article = TestData.testArticle();
+        final ArticleCreateRequest article = TestData.testArticleRequestDTO();
+        final ArticleEntity articleEntity = articleMapper.toEntity(article);
+        articleEntity.setId(1L);
+        final ArticleResponse articleResponse = articleMapper.toResponse(articleEntity);
 
-        EntityModel<Article> articleEntityModel = EntityModel.of(article,
-                linkTo(methodOn(ArticleController.class).getArticle(article.getId())).withSelfRel(),
+        EntityModel<ArticleResponse> articleEntityModel = EntityModel.of(articleResponse,
+                linkTo(methodOn(ArticleController.class).getArticle(articleResponse.id())).withSelfRel(),
                 linkTo(methodOn(ArticleController.class).getAllArticles()).withRel("articles"));
 
         // when - action or behaviour that we are going test
-        when(service.saveArticle(any(Article.class))).thenReturn(article);
-        when(assembler.toModel(any(Article.class))).thenReturn(articleEntityModel);
+        when(service.saveArticle(any(ArticleCreateRequest.class))).thenReturn(articleResponse);
+        when(assembler.toModel(any(ArticleResponse.class))).thenReturn(articleEntityModel);
 
         ResultActions response = mockMvc.perform(post("/articles")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -76,11 +78,11 @@ public class ArticleControllerTest {
         // then - verify the result or output using assert statements
         response.andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id", is(article.getId().intValue())))
-                .andExpect(jsonPath("$.title", is(article.getTitle())))
-                .andExpect(jsonPath("$.content", is(article.getContent())))
-                .andExpect(jsonPath("$.tags[0].name", is(article.getTags().get(0).getName())))
-                .andExpect(jsonPath("$.publishDate", is(article.getPublishDate().toString())))
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.title").value(articleResponse.title()))
+                .andExpect(jsonPath("$.content").value(articleResponse.content()))
+                .andExpect(jsonPath("$.tags[0].name").value(articleResponse.tags().get(0).getName()))
+                .andExpect(jsonPath("$.publishDate").value(articleResponse.publishDate().toString()))
                 .andExpect(jsonPath("$._links.self.href").exists())
                 .andExpect(jsonPath("$._links.articles.href").exists());
     }
@@ -90,14 +92,14 @@ public class ArticleControllerTest {
     void givenListOfArticles_whenGetAllArticles_thenReturnArticlesList() throws Exception {
 
         // given - precondition or setup
-        final Article article = TestData.testArticle();
+        final ArticleResponse article = TestData.testArticleResponseDTO();
 
-        List<EntityModel<Article>> listOfArticles = Arrays.asList(EntityModel.of(article));
-        CollectionModel<EntityModel<Article>> collectionModel = CollectionModel.of(listOfArticles);
+        List<EntityModel<ArticleResponse>> listOfArticles = List.of(EntityModel.of(article));
+        CollectionModel<EntityModel<ArticleResponse>> collectionModel = CollectionModel.of(listOfArticles);
 
         // when - action or the behaviour that we are going test
-        when(service.getAllArticles()).thenReturn(Arrays.asList(article));
-        when(assembler.toModel(any(Article.class))).thenReturn(EntityModel.of(article));
+        when(service.getAllArticles()).thenReturn(List.of(article));
+        when(assembler.toModel(any(ArticleResponse.class))).thenReturn(EntityModel.of(article));
 
         ResultActions response = mockMvc.perform(get("/articles")
                 .accept(MediaType.APPLICATION_JSON));
@@ -105,7 +107,7 @@ public class ArticleControllerTest {
         // then - verify the output
         response.andExpect(status().isOk())
                 .andDo(print())
-                .andExpect(jsonPath("$._embedded.articleList[0].title").value(article.getTitle()));
+                .andExpect(jsonPath("$._embedded.articleResponseList[0].title").value(article.title()));
     }
 
     // positive scenario - valid Article id
@@ -115,13 +117,14 @@ public class ArticleControllerTest {
 
         // given - precondition or setup
         Long articleId = 1L;
-        Article article = TestData.testArticle();
+        ArticleResponse article = TestData.testArticleResponseDTO();
 
-        EntityModel<Article> articleEntityModel = EntityModel.of(article);
+        EntityModel<ArticleResponse> articleEntityModel = EntityModel.of(article,
+                linkTo(methodOn(ArticleController.class).getArticle(article.id())).withSelfRel());
 
         // when - action or behaviour that we are going test
         when(service.getArticleById(articleId)).thenReturn(article);
-        when(assembler.toModel(any(Article.class))).thenReturn(articleEntityModel);
+        when(assembler.toModel(any(ArticleResponse.class))).thenReturn(articleEntityModel);
 
         ResultActions response = mockMvc.perform(get("/articles/{id}", articleId)
                 .accept(MediaType.APPLICATION_JSON));
@@ -129,11 +132,13 @@ public class ArticleControllerTest {
         // then - verify the result or output using assert statements
         response.andExpect(status().isOk())
                 .andDo(print())
-                .andExpect(jsonPath("$.id", is(article.getId().intValue())))
-                .andExpect(jsonPath("$.title", is(article.getTitle())))
-                .andExpect(jsonPath("$.content", is(article.getContent())))
-                .andExpect(jsonPath("$.tags[0].name", is(article.getTags().get(0).getName())))
-                .andExpect(jsonPath("$.publishDate", is(article.getPublishDate().toString())));
+                .andExpect(jsonPath("$.id", is(article.id().intValue())))
+                .andExpect(jsonPath("$.title", is(article.title())))
+                .andExpect(jsonPath("$.content", is(article.content())))
+                .andExpect(jsonPath("$.tags[0].name", is(article.tags().get(0).getName())))
+                .andExpect(jsonPath("$.publishDate", is(article.publishDate().toString())))
+                .andExpect(jsonPath("$._links.self.href").exists());
+
     }
 
     // negative scenario - invalid article id
@@ -160,38 +165,32 @@ public class ArticleControllerTest {
 
         // given - condition or setup
         Long articleId = 1L;
-        Article savedArticle = TestData.testArticle();
+        ArticleUpdateRequest articleUpdateRequest = TestData.testArticleUpdateDTO();
+        ArticleEntity articleEntity = articleMapper.toEntity(articleId, articleUpdateRequest);
+        ArticleResponse articleResponse = articleMapper.toResponse(articleEntity);
 
-        Tag tag = Tag.builder().id(1L).name("Other Tag name").build();
-        Article updatedArticle = Article.builder()
-                .id(articleId)
-                .title("Updated Title Article")
-                .content("Updated content of article")
-                .tags(List.of(tag))
-                .publishDate(LocalDate.now())
-                .build();
-
-        given(service.updateArticle(eq(articleId), any(Article.class))).willReturn(updatedArticle);
-
-        EntityModel<Article> articleEntityModel = EntityModel.of(updatedArticle,
+        EntityModel<ArticleResponse> articleEntityModel = EntityModel.of(articleResponse,
                 linkTo(methodOn(ArticleController.class).getArticle(articleId)).withSelfRel(),
                 linkTo(methodOn(ArticleController.class).getAllArticles()).withRel("articles"));
 
-        given(assembler.toModel(any(Article.class))).willReturn(articleEntityModel);
+        given(service.updateArticle(eq(articleId), any(ArticleUpdateRequest.class))).willReturn(articleResponse);
+        given(assembler.toModel(any(ArticleResponse.class))).willReturn(articleEntityModel);
 
         // when -  action or the behaviour that we are going test
         ResultActions response = mockMvc.perform(put("/articles/{id}", articleId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updatedArticle)));
+                .content(objectMapper.writeValueAsString(articleResponse)));
 
         // then - verify the output
-        response.andExpect(status().isCreated())
+        response.andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(jsonPath("$.id", is(articleId.intValue())))
-                .andExpect(jsonPath("$.title", is(updatedArticle.getTitle())))
-                .andExpect(jsonPath("$.content", is(updatedArticle.getContent())))
-                .andExpect(jsonPath("$.tags[0].name", is(updatedArticle.getTags().get(0).getName())))
-                .andExpect(jsonPath("$.publishDate", is(updatedArticle.getPublishDate().toString())));
+                .andExpect(jsonPath("$.title", is(articleResponse.title())))
+                .andExpect(jsonPath("$.content", is(articleResponse.content())))
+                .andExpect(jsonPath("$.tags[0].name", is(articleResponse.tags().get(0).getName())))
+                .andExpect(jsonPath("$.publishDate", is(articleResponse.publishDate().toString())))
+                .andExpect(jsonPath("$._links.self.href").exists())
+                .andExpect(jsonPath("$._links.articles.href").exists());
     }
 
     // JUnit test for update article REST API - negative scenario
@@ -200,10 +199,10 @@ public class ArticleControllerTest {
 
         // given - precondition or setup
         Long articleId = 1L;
-        Article updatedArticle = TestData.testArticle();
+        ArticleUpdateRequest updatedArticle = TestData.testArticleUpdateDTO();
 
         // when - action or the behaviour that we are going test
-        when(service.updateArticle(eq(articleId), any(Article.class))).thenThrow(new ArticleNotFoundException(articleId));
+        when(service.updateArticle(eq(articleId), any(ArticleUpdateRequest.class))).thenThrow(new ArticleNotFoundException(articleId));
 
         ResultActions response = mockMvc.perform(put("/articles/{id}", articleId)
                 .contentType(MediaType.APPLICATION_JSON)
