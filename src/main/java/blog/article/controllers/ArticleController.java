@@ -1,7 +1,9 @@
 package blog.article.controllers;
 
 import blog.article.assemblers.ArticleModelAssembler;
-import blog.article.domain.Article;
+import blog.article.domain.ArticleCreateRequest;
+import blog.article.domain.ArticleResponse;
+import blog.article.domain.ArticleUpdateRequest;
 import blog.article.services.ArticleService;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -30,9 +32,9 @@ public class ArticleController {
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
     @PostMapping(path = "/articles")
-    public ResponseEntity<?> createArticle(@RequestBody Article article) {
+    public ResponseEntity<?> createArticle(@RequestBody ArticleCreateRequest article) {
 
-        EntityModel<Article> savedArticle =  assembler.toModel(service.saveArticle(article));
+        EntityModel<ArticleResponse> savedArticle =  assembler.toModel(service.saveArticle(article));
 
         return ResponseEntity
                 .created(savedArticle.getRequiredLink(IanaLinkRelations.SELF).toUri())
@@ -41,9 +43,9 @@ public class ArticleController {
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
     @GetMapping(path = "/articles")
-    public CollectionModel<EntityModel<Article>> getAllArticles() {
+    public CollectionModel<EntityModel<ArticleResponse>> getAllArticles() {
 
-        List<EntityModel<Article>> articles = service.getAllArticles().stream()
+        List<EntityModel<ArticleResponse>> articles = service.getAllArticles().stream()
                 .map(assembler::toModel)
                 .collect(Collectors.toList());
 
@@ -52,21 +54,19 @@ public class ArticleController {
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
     @GetMapping(path = "/articles/{id}")
-    public EntityModel<Article> getArticle(@PathVariable Long id) {
+    public EntityModel<ArticleResponse> getArticle(@PathVariable Long id) {
 
-        Article foundArticle = service.getArticleById(id);
+        ArticleResponse foundArticle = service.getArticleById(id);
         return assembler.toModel(foundArticle);
     }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
     @PutMapping("/articles/{id}")
-    public ResponseEntity<?> updateArticle(@PathVariable Long id, @RequestBody Article article) {
+    public ResponseEntity<?> updateArticle(@PathVariable Long id, @RequestBody ArticleUpdateRequest article) {
 
-        Article updatedArticle = service.updateArticle(id, article);
-        EntityModel<Article> articleDTOEntityModel = assembler.toModel(updatedArticle);
-        return ResponseEntity
-                .created(articleDTOEntityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
-                .body(articleDTOEntityModel);
+        ArticleResponse updatedArticle = service.updateArticle(id, article);
+        EntityModel<ArticleResponse> articleDTOEntityModel = assembler.toModel(updatedArticle);
+        return ResponseEntity.ok(articleDTOEntityModel);
     }
 
     @CrossOrigin(origins = "*", allowedHeaders = "*")
