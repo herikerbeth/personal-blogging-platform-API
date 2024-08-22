@@ -1,14 +1,16 @@
 package blog.article.services;
 
-import blog.article.domain.Article;
+import blog.article.domain.ArticleCreateRequest;
+import blog.article.domain.ArticleResponse;
+import blog.article.domain.ArticleUpdateRequest;
 
 import java.util.List;
 
 public interface ArticleService {
 
-    Article saveArticle(Article article);
-    List<Article> getAllArticles();
-    Article getArticleById(Long id);
-    Article updateArticle(Long id, Article article);
+    ArticleResponse saveArticle(ArticleCreateRequest article);
+    List<ArticleResponse> getAllArticles();
+    ArticleResponse getArticleById(Long id);
+    ArticleResponse updateArticle(Long id, ArticleUpdateRequest article);
     void deleteArticle(Long id);
 }
