@@ -1,6 +1,7 @@
 package blog.article.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -18,7 +19,11 @@ public class ArticleEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotBlank(message = "Title name cannot be empty")
     private String title;
+
+    @NotBlank(message = "Content cannot be empty")
     private String content;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
