@@ -1,24 +1,20 @@
 package blog.article.services.impl;
 
 import blog.article.controllers.exceptions.ArticleNotFoundException;
-import blog.article.domain.Article;
-import blog.article.domain.ArticleEntity;
+import blog.article.domain.*;
 import blog.article.repositories.ArticleRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static blog.TestData.testArticle;
-import static blog.TestData.testArticleEntity;
+import static blog.TestData.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -33,23 +29,25 @@ public class ArticleServiceImplTest {
     @InjectMocks
     private ArticleServiceImpl underTest;
 
-    private static final Logger log = LoggerFactory.getLogger(ArticleServiceImplTest.class);
+    private final ArticleMapper articleMapper = ArticleMapper.INSTANCE;
 
     @Test
     void test_That_Article_Is_Saved() {
 
         // given - precondition or setup
-        final Article article = testArticle();
+        final ArticleCreateRequest article = testArticleRequestDTO();
 
-        final ArticleEntity articleEntity = testArticleEntity();
+        final ArticleEntity articleEntity = articleMapper.toEntity(article);
+
+        final ArticleResponse expectedResponse = articleMapper.toResponse(articleEntity);
 
         // when - action or behaviour that we are going test
-        when(articleRepository.save(eq(articleEntity))).thenReturn(articleEntity);
+        when(articleRepository.save(any(ArticleEntity.class))).thenReturn(articleEntity);
 
-        final Article result = underTest.saveArticle(article);
+        final ArticleResponse result = underTest.saveArticle(article);
 
         // then - verify the result or output using assert statements
-        assertEquals(article, result);
+        assertEquals(expectedResponse, result);
     }
 
     @Test
@@ -61,7 +59,7 @@ public class ArticleServiceImplTest {
         // when - action or behaviour that we are going test
         when(articleRepository.findAll()).thenReturn(List.of(articleEntity));
 
-        final List<Article> result = underTest.getAllArticles();
+        final List<ArticleResponse> result = underTest.getAllArticles();
 
         // then - verify the result or output using assert statements
         assertEquals(1, result.size());
@@ -73,7 +71,7 @@ public class ArticleServiceImplTest {
         // when - action or behaviour that we are going test
         when(articleRepository.findAll()).thenReturn(new ArrayList<>());
 
-        final List<Article> result = underTest.getAllArticles();
+        final List<ArticleResponse> result = underTest.getAllArticles();
 
         // then - verify the result or output using assert statements
         assertEquals(0, result.size());
@@ -83,14 +81,14 @@ public class ArticleServiceImplTest {
     void test_That_Find_By_Id_Returns_Article_When_Exists() {
 
         // given - precondition or setup
-        final Article article = testArticle();
-
+        final Long articleId = 1L;
         final ArticleEntity articleEntity = testArticleEntity();
+        final ArticleResponse article = articleMapper.toResponse(articleEntity);
 
         // when - action or behaviour that we are going test
-        when(articleRepository.findById(eq(article.getId()))).thenReturn(Optional.of(articleEntity));
+        when(articleRepository.findById(eq(articleId))).thenReturn(Optional.of(articleEntity));
 
-        final Article result = underTest.getArticleById(article.getId());
+        final ArticleResponse result = underTest.getArticleById(articleId);
 
         // then - verify the result or output using assert statements
         assertEquals(article, result);
@@ -114,19 +112,18 @@ public class ArticleServiceImplTest {
 
         // given - precondition or setup
         final Long id = 1L;
-        final Article updatedArticle = testArticle();
-        final ArticleEntity updatedArticleEntity = articleToArticleEntity(updatedArticle);
+        final ArticleUpdateRequest updatedArticle = testArticleUpdateDTO();
+        final ArticleEntity articleEntity = articleMapper.toEntity(id, updatedArticle);
+        final ArticleResponse expectedResponse = articleMapper.toResponse(articleEntity);
 
         // when - action or behaviour that we are going test
-        when(articleRepository.findById(id)).thenReturn(Optional.of(updatedArticleEntity));
+        when(articleRepository.save(any(ArticleEntity.class))).thenReturn(articleEntity);
 
-        when(articleRepository.save(any(ArticleEntity.class))).thenReturn(updatedArticleEntity);
-
-        final Article result = underTest.updateArticle(id, updatedArticle);
-        assertNotNull(result);
+        final ArticleResponse result = underTest.updateArticle(id, updatedArticle);
 
         // then - verify the result or output using assert statements
-        assertEquals(updatedArticle, result);
+        assertNotNull(result);
+        assertEquals(expectedResponse, result);
     }
 
     @Test
@@ -134,13 +131,16 @@ public class ArticleServiceImplTest {
 
         // given - precondition or setup
         final Long articleId = 1L;
-        final Article updatedArticle = testArticle();
+        final ArticleUpdateRequest updatedArticle = testArticleUpdateDTO();
+        final ArticleEntity articleEntity = articleMapper.toEntity(articleId, updatedArticle);
 
         // when - action or behaviour that we are going test
-        when(articleRepository.findById(eq(articleId))).thenReturn(Optional.empty());
+        when(articleRepository.save(articleEntity)).thenReturn(null);
+
+        final ArticleResponse result = underTest.updateArticle(articleId, updatedArticle);
 
         // then - verify the result or output using assert statements
-        assertThrows(ArticleNotFoundException.class, () -> underTest.updateArticle(articleId, updatedArticle));
+        assertNull(result);
     }
 
     @Test
@@ -166,16 +166,5 @@ public class ArticleServiceImplTest {
         underTest.deleteArticle(articleId);
 
         verify(articleRepository, times(1)).deleteById(articleId);
-    }
-
-    private ArticleEntity articleToArticleEntity(Article article) {
-
-        return ArticleEntity.builder()
-                .id(article.getId())
-                .title(article.getTitle())
-                .content(article.getContent())
-                .tags(article.getTags())
-                .publishDate(article.getPublishDate())
-                .build();
     }
 }
