@@ -1,18 +1,15 @@
 package blog.article.services.impl;
 
 import blog.article.controllers.exceptions.ArticleNotFoundException;
-import blog.article.domain.Article;
-import blog.article.domain.ArticleEntity;
+import blog.article.domain.*;
 import blog.article.repositories.ArticleRepository;
 import blog.article.services.ArticleService;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,6 +17,7 @@ import java.util.stream.Collectors;
 public class ArticleServiceImpl implements ArticleService {
 
     private final ArticleRepository articleRepository;
+    private final ArticleMapper articleMapper = ArticleMapper.INSTANCE;
 
     @Autowired
     public ArticleServiceImpl(final ArticleRepository articleRepository) {
@@ -27,55 +25,35 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public Article saveArticle(Article article) {
-        ArticleEntity articleEntity = ArticleEntity.builder()
-                .id(article.getId())
-                .title(article.getTitle())
-                .content(article.getContent())
-                .publishDate(article.getPublishDate())
-                .tags(article.getTags())
-                .build();
-        ArticleEntity savedArticle = articleRepository.save(articleEntity);
+    public ArticleResponse saveArticle(ArticleCreateRequest article) {
 
-        return new Article(savedArticle.getId(), savedArticle.getTitle(), savedArticle.getContent(),
-                savedArticle.getTags(), savedArticle.getPublishDate());
+        ArticleEntity articleEntity = articleMapper.toEntity(article);
+        ArticleEntity savedArticle = articleRepository.save(articleEntity);
+        return articleMapper.toResponse(savedArticle);
     }
 
     @Override
-    public List<Article> getAllArticles() {
+    public List<ArticleResponse> getAllArticles() {
 
         return articleRepository.findAll().stream()
-                .map(article -> new Article(article.getId(), article.getTitle(), article.getContent(),
-                        article.getTags(), article.getPublishDate()))
+                .map(articleMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public Article getArticleById(Long id) {
+    public ArticleResponse getArticleById(Long id) {
 
         ArticleEntity foundArticle = articleRepository.findById(id)
                 .orElseThrow(() -> new ArticleNotFoundException(id));
-        return new Article(foundArticle.getId(), foundArticle.getTitle(), foundArticle.getContent(),
-                foundArticle.getTags(), foundArticle.getPublishDate());
+        return articleMapper.toResponse(foundArticle);
     }
 
     @Override
-    public Article updateArticle(Long id, Article updateArticleDTO) {
+    public ArticleResponse updateArticle(Long id, ArticleUpdateRequest updateArticleDTO) {
 
-        Optional<ArticleEntity> article = articleRepository.findById(id);
-
-        if (article.isPresent()) {
-            ArticleEntity articleToUpdate = article.get();
-            articleToUpdate.setTitle(updateArticleDTO.getTitle());
-            articleToUpdate.setContent(updateArticleDTO.getContent());
-            articleToUpdate.setTags(updateArticleDTO.getTags());
-            articleToUpdate.setPublishDate(updateArticleDTO.getPublishDate());
-            ArticleEntity updatedArticle = articleRepository.save(articleToUpdate);
-            return new Article(updatedArticle.getId(), updatedArticle.getTitle(), updatedArticle.getContent(),
-                    updatedArticle.getTags(), updatedArticle.getPublishDate());
-        } else {
-            throw new ArticleNotFoundException(id);
-        }
+        ArticleEntity articleToUpdate = articleMapper.toEntity(id, updateArticleDTO);
+        ArticleEntity updatedArticle = articleRepository.save(articleToUpdate);
+        return articleMapper.toResponse(updatedArticle);
     }
 
     @Override
