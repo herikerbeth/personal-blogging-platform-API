@@ -28,4 +28,18 @@ public class ArticleEntity {
 
     @Column(name = "publish_date")
     private LocalDate publishDate;
+
+    public ArticleEntity(ArticleCreateRequest data) {
+        this.title = data.title();
+        this.content = data.content();
+        this.tags = data.tags();
+        this.publishDate = LocalDate.now();
+    }
+
+    public ArticleEntity(ArticleUpdateRequest data) {
+        this.title = data.title();
+        this.content = data.content();
+        this.tags = data.tags();
+        this.publishDate = LocalDate.now();
+    }
 }
