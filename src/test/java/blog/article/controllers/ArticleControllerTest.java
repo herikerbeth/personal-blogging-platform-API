@@ -47,8 +47,6 @@ public class ArticleControllerTest {
     @MockBean
     private ArticleModelAssembler assembler;
 
-    private final ArticleMapper articleMapper = ArticleMapper.INSTANCE;
-
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -59,9 +57,9 @@ public class ArticleControllerTest {
 
         // given - precondition or setup
         final ArticleCreateRequest article = TestData.testArticleRequestDTO();
-        final ArticleEntity articleEntity = articleMapper.toEntity(article);
+        final ArticleEntity articleEntity = new ArticleEntity(article);
         articleEntity.setId(1L);
-        final ArticleResponse articleResponse = articleMapper.toResponse(articleEntity);
+        final ArticleResponse articleResponse = new ArticleResponse(articleEntity);
 
         EntityModel<ArticleResponse> articleEntityModel = EntityModel.of(articleResponse,
                 linkTo(methodOn(ArticleController.class).getArticle(articleResponse.id())).withSelfRel(),
@@ -166,8 +164,9 @@ public class ArticleControllerTest {
         // given - condition or setup
         Long articleId = 1L;
         ArticleUpdateRequest articleUpdateRequest = TestData.testArticleUpdateDTO();
-        ArticleEntity articleEntity = articleMapper.toEntity(articleId, articleUpdateRequest);
-        ArticleResponse articleResponse = articleMapper.toResponse(articleEntity);
+        ArticleEntity articleEntity = new ArticleEntity(articleUpdateRequest);
+        articleEntity.setId(articleId);
+        ArticleResponse articleResponse = new ArticleResponse(articleEntity);
 
         EntityModel<ArticleResponse> articleEntityModel = EntityModel.of(articleResponse,
                 linkTo(methodOn(ArticleController.class).getArticle(articleId)).withSelfRel(),
