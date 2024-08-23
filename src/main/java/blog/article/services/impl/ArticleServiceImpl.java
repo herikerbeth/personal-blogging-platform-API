@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 public class ArticleServiceImpl implements ArticleService {
 
     private final ArticleRepository articleRepository;
-    private final ArticleMapper articleMapper = ArticleMapper.INSTANCE;
 
     @Autowired
     public ArticleServiceImpl(final ArticleRepository articleRepository) {
@@ -27,33 +26,34 @@ public class ArticleServiceImpl implements ArticleService {
     @Override
     public ArticleResponse saveArticle(ArticleCreateRequest article) {
 
-        ArticleEntity articleEntity = articleMapper.toEntity(article);
-        ArticleEntity savedArticle = articleRepository.save(articleEntity);
-        return articleMapper.toResponse(savedArticle);
+        ArticleEntity articleEntity = new ArticleEntity(article);
+        ArticleEntity articleEntitySaved = articleRepository.save(articleEntity);
+        return new ArticleResponse(articleEntitySaved);
     }
 
     @Override
     public List<ArticleResponse> getAllArticles() {
 
         return articleRepository.findAll().stream()
-                .map(articleMapper::toResponse)
+                .map(ArticleResponse::new)
                 .collect(Collectors.toList());
     }
 
     @Override
     public ArticleResponse getArticleById(Long id) {
 
-        ArticleEntity foundArticle = articleRepository.findById(id)
-                .orElseThrow(() -> new ArticleNotFoundException(id));
-        return articleMapper.toResponse(foundArticle);
+        ArticleEntity foundArticle = articleRepository.findById(id).
+                orElseThrow(() -> new ArticleNotFoundException(id));
+        return new ArticleResponse(foundArticle);
     }
 
     @Override
     public ArticleResponse updateArticle(Long id, ArticleUpdateRequest updateArticleDTO) {
 
-        ArticleEntity articleToUpdate = articleMapper.toEntity(id, updateArticleDTO);
+        ArticleEntity articleToUpdate = new ArticleEntity(updateArticleDTO);
+        articleToUpdate.setId(id);
         ArticleEntity updatedArticle = articleRepository.save(articleToUpdate);
-        return articleMapper.toResponse(updatedArticle);
+        return new ArticleResponse(updatedArticle);
     }
 
     @Override
