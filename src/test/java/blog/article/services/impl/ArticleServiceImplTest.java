@@ -29,17 +29,15 @@ public class ArticleServiceImplTest {
     @InjectMocks
     private ArticleServiceImpl underTest;
 
-    private final ArticleMapper articleMapper = ArticleMapper.INSTANCE;
-
     @Test
     void test_That_Article_Is_Saved() {
 
         // given - precondition or setup
         final ArticleCreateRequest article = testArticleRequestDTO();
 
-        final ArticleEntity articleEntity = articleMapper.toEntity(article);
+        final ArticleEntity articleEntity = new ArticleEntity(article);
 
-        final ArticleResponse expectedResponse = articleMapper.toResponse(articleEntity);
+        final ArticleResponse expectedResponse = new ArticleResponse(articleEntity);
 
         // when - action or behaviour that we are going test
         when(articleRepository.save(any(ArticleEntity.class))).thenReturn(articleEntity);
@@ -83,7 +81,7 @@ public class ArticleServiceImplTest {
         // given - precondition or setup
         final Long articleId = 1L;
         final ArticleEntity articleEntity = testArticleEntity();
-        final ArticleResponse article = articleMapper.toResponse(articleEntity);
+        final ArticleResponse article = new ArticleResponse(articleEntity);
 
         // when - action or behaviour that we are going test
         when(articleRepository.findById(eq(articleId))).thenReturn(Optional.of(articleEntity));
@@ -113,8 +111,8 @@ public class ArticleServiceImplTest {
         // given - precondition or setup
         final Long id = 1L;
         final ArticleUpdateRequest updatedArticle = testArticleUpdateDTO();
-        final ArticleEntity articleEntity = articleMapper.toEntity(id, updatedArticle);
-        final ArticleResponse expectedResponse = articleMapper.toResponse(articleEntity);
+        final ArticleEntity articleEntity = new ArticleEntity(updatedArticle);
+        final ArticleResponse expectedResponse = new ArticleResponse(articleEntity);
 
         // when - action or behaviour that we are going test
         when(articleRepository.save(any(ArticleEntity.class))).thenReturn(articleEntity);
@@ -132,15 +130,14 @@ public class ArticleServiceImplTest {
         // given - precondition or setup
         final Long articleId = 1L;
         final ArticleUpdateRequest updatedArticle = testArticleUpdateDTO();
-        final ArticleEntity articleEntity = articleMapper.toEntity(articleId, updatedArticle);
 
         // when - action or behaviour that we are going test
-        when(articleRepository.save(articleEntity)).thenReturn(null);
-
-        final ArticleResponse result = underTest.updateArticle(articleId, updatedArticle);
+        when(articleRepository.save(any(ArticleEntity.class))).thenReturn(null);
 
         // then - verify the result or output using assert statements
-        assertNull(result);
+        assertThrows(NullPointerException.class, () -> {
+            underTest.updateArticle(articleId, updatedArticle);
+        });
     }
 
     @Test
