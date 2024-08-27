@@ -4,6 +4,7 @@ import blog.article.domain.ArticleCreateRequest;
 import blog.article.domain.ArticleResponse;
 import blog.article.domain.ArticleUpdateRequest;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface ArticleService {
@@ -13,4 +14,5 @@ public interface ArticleService {
     ArticleResponse getArticleById(Long id);
     ArticleResponse updateArticle(Long id, ArticleUpdateRequest article);
     void deleteArticle(Long id);
+    List<ArticleResponse> getArticlesByDate(LocalDate date);
 }
