@@ -69,7 +69,7 @@ public class ArticleControllerTest {
         when(service.saveArticle(any(ArticleCreateRequest.class))).thenReturn(articleResponse);
         when(assembler.toModel(any(ArticleResponse.class))).thenReturn(articleEntityModel);
 
-        ResultActions response = mockMvc.perform(post("/articles")
+        ResultActions response = mockMvc.perform(post("/v1/articles")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(article)));
 
@@ -99,7 +99,7 @@ public class ArticleControllerTest {
         when(service.getAllArticles()).thenReturn(List.of(article));
         when(assembler.toModel(any(ArticleResponse.class))).thenReturn(EntityModel.of(article));
 
-        ResultActions response = mockMvc.perform(get("/articles")
+        ResultActions response = mockMvc.perform(get("/v1/articles")
                 .accept(MediaType.APPLICATION_JSON));
 
         // then - verify the output
@@ -124,7 +124,7 @@ public class ArticleControllerTest {
         when(service.getArticleById(articleId)).thenReturn(article);
         when(assembler.toModel(any(ArticleResponse.class))).thenReturn(articleEntityModel);
 
-        ResultActions response = mockMvc.perform(get("/articles/{id}", articleId)
+        ResultActions response = mockMvc.perform(get("/v1/articles/{id}", articleId)
                 .accept(MediaType.APPLICATION_JSON));
 
         // then - verify the result or output using assert statements
@@ -150,7 +150,7 @@ public class ArticleControllerTest {
         when(service.getArticleById(articleId)).thenThrow(new ArticleNotFoundException(articleId));
 
         // when -  action or the behaviour that we are going test
-        ResultActions response = mockMvc.perform(get("/articles/{id}", articleId));
+        ResultActions response = mockMvc.perform(get("/v1/articles/{id}", articleId));
 
         // then - verify the output
         response.andExpect(status().isNotFound())
@@ -176,7 +176,7 @@ public class ArticleControllerTest {
         given(assembler.toModel(any(ArticleResponse.class))).willReturn(articleEntityModel);
 
         // when -  action or the behaviour that we are going test
-        ResultActions response = mockMvc.perform(put("/articles/{id}", articleId)
+        ResultActions response = mockMvc.perform(put("/v1/articles/{id}", articleId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(articleResponse)));
 
@@ -203,7 +203,7 @@ public class ArticleControllerTest {
         // when - action or the behaviour that we are going test
         when(service.updateArticle(eq(articleId), any(ArticleUpdateRequest.class))).thenThrow(new ArticleNotFoundException(articleId));
 
-        ResultActions response = mockMvc.perform(put("/articles/{id}", articleId)
+        ResultActions response = mockMvc.perform(put("/v1/articles/{id}", articleId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedArticle)));
 
@@ -221,7 +221,7 @@ public class ArticleControllerTest {
         willDoNothing().given(service).deleteArticle(articleId);
 
         // when -  action or the behaviour that we are going test
-        ResultActions response = mockMvc.perform(delete("/articles/{id}", articleId));
+        ResultActions response = mockMvc.perform(delete("/v1/articles/{id}", articleId));
 
         // then - verify the output
         response.andExpect(status().isNoContent())
