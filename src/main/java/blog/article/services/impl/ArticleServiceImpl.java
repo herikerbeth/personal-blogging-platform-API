@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -64,5 +65,13 @@ public class ArticleServiceImpl implements ArticleService {
         } catch (final EmptyResultDataAccessException ex) {
             log.debug("Attempted to delete non-existing article", ex);
         }
+    }
+
+    @Override
+    public List<ArticleResponse> getArticlesByDate(LocalDate date) {
+
+        return articleRepository.findAllByPublishDate(date).stream()
+                .map(ArticleResponse::new)
+                .collect(Collectors.toList());
     }
 }
