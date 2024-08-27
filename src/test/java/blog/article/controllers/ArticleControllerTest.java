@@ -18,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -226,5 +227,29 @@ public class ArticleControllerTest {
         // then - verify the output
         response.andExpect(status().isNoContent())
                 .andDo(print());
+    }
+
+    // JUnit test for GET articles by publish date REST API
+    @Test
+    void givenListOfArticlesByPublishDate_whenGetArticles_thenReturnArticlesList() throws Exception {
+
+        // given - precondition or setup
+        LocalDate publishDate = LocalDate.now();
+        final ArticleResponse article = TestData.testArticleResponseDTO();
+
+        List<EntityModel<ArticleResponse>> listOfArticles = List.of(EntityModel.of(article));
+        CollectionModel<EntityModel<ArticleResponse>> collectionModel = CollectionModel.of(listOfArticles);
+
+        // when - action or the behaviour that we are going test
+        when(service.getArticlesByDate(publishDate)).thenReturn(List.of(article));
+        when(assembler.toModel(any(ArticleResponse.class))).thenReturn(EntityModel.of(article));
+
+        ResultActions response = mockMvc.perform(get("/v1/articles/filter").param("date", publishDate.toString())
+                .accept(MediaType.APPLICATION_JSON));
+
+        // then - verify the output
+        response.andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(jsonPath("$._embedded.articleResponseList[0].title").value(article.title()));
     }
 }
