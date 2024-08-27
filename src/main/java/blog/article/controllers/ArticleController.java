@@ -136,7 +136,7 @@ public class ArticleController {
             description = "Delete a specific registered article of blog"
     )
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "successful operation"),
+            @ApiResponse(responseCode = "204", description = "no content"),
             @ApiResponse(responseCode = "404", description = "Article not found")
     })
     public ResponseEntity<?> deleteArticle(@PathVariable final Long id) {
