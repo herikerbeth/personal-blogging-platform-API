@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.EmptyResultDataAccessException;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -163,5 +164,22 @@ public class ArticleServiceImplTest {
         underTest.deleteArticle(articleId);
 
         verify(articleRepository, times(1)).deleteById(articleId);
+    }
+
+    @Test
+    void test_List_Articles_By_LocalDate_Return_Articles_When_Exist() {
+
+        // given
+        LocalDate publishDate = LocalDate.now();
+        final ArticleEntity articleEntity = testArticleEntity();
+
+        // when
+        when(articleRepository.findAllByPublishDate(publishDate))
+                .thenReturn(List.of(articleEntity));
+
+        final List<ArticleResponse> result = underTest.getArticlesByDate(publishDate);
+
+        // then
+        assertEquals(1, result.size());
     }
 }
