@@ -1,5 +1,6 @@
 package blog.article.domain;
 
+import blog.tag.domain.TagEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,7 +25,7 @@ public class ArticleEntity {
     private String content;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    private List<Tag> tags;
+    private List<TagEntity> tags;
 
     @Column(name = "publish_date")
     private LocalDate publishDate;
