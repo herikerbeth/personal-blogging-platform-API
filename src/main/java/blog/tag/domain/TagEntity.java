@@ -1,4 +1,4 @@
-package blog.article.domain;
+package blog.tag.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,11 +11,15 @@ import lombok.*;
 
 @Entity(name = "Tags")
 @Table(name = "Tags")
-public class Tag {
+public class TagEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
+
+    public TagEntity(TagCreateRequest data) {
+        this.name = data.name();
+    }
 }
