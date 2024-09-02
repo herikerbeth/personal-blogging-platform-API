@@ -252,4 +252,28 @@ public class ArticleControllerTest {
                 .andDo(print())
                 .andExpect(jsonPath("$._embedded.articleResponseList[0].title").value(article.title()));
     }
+
+    // JUnit test for GET articles by tag name date REST API
+    @Test
+    void givenListOfArticles_whenGetArticlesByTagName_thenReturnArticlesList() throws Exception {
+
+        // given - precondition or setup
+        String tagName = "tag name";
+        final ArticleResponse article = TestData.testArticleResponseDTO();
+
+        List<EntityModel<ArticleResponse>> listOfArticles = List.of(EntityModel.of(article));
+        CollectionModel<EntityModel<ArticleResponse>> collectionModel = CollectionModel.of(listOfArticles);
+
+        // when - action or the behaviour that we are going test
+        when(service.getArticlesByTagName(tagName)).thenReturn(List.of(article));
+        when(assembler.toModel(any(ArticleResponse.class))).thenReturn(EntityModel.of(article));
+
+        ResultActions response = mockMvc.perform(get("/v1/articles/tags/{tagName}", tagName)
+                .accept(MediaType.APPLICATION_JSON));
+
+        // then - verify the output
+        response.andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(jsonPath("$._embedded.articleResponseList[0].title").value(article.title()));
+    }
 }
