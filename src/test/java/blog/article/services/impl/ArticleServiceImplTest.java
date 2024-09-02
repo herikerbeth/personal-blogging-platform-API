@@ -182,4 +182,21 @@ public class ArticleServiceImplTest {
         // then
         assertEquals(1, result.size());
     }
+
+    @Test
+    void test_List_Articles_By_TagName_Return_Articles_When_Exist() {
+
+        // given
+        String publishDate = "tag name";
+        final ArticleEntity articleEntity = testArticleEntity();
+
+        // when
+        when(articleRepository.findAllByTagsName(publishDate))
+                .thenReturn(List.of(articleEntity));
+
+        final List<ArticleResponse> result = underTest.getArticlesByTagName(publishDate);
+
+        // then
+        assertEquals(1, result.size());
+    }
 }
