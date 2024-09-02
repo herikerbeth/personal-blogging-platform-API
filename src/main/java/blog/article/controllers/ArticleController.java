@@ -170,4 +170,26 @@ public class ArticleController {
 
         return CollectionModel.of(articles, linkTo(methodOn(ArticleController.class).getAllArticles()).withSelfRel());
     }
+
+    @CrossOrigin(origins = "*", allowedHeaders = "*")
+    @GetMapping("/tags/{tagName}")
+    @Operation(
+            tags = "Article",
+            summary = "Return articles by tag name",
+            description = "Return articles by tag name"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "successful operation"),
+            @ApiResponse(responseCode = "500", description = "failed to get articles by publish date",
+            content = @Content(mediaType = "application/json",
+            schema = @Schema(implementation = ServerError.class))),
+    })
+    public CollectionModel<EntityModel<ArticleResponse>> getArticlesByTagName(@PathVariable String tagName) {
+
+        List<EntityModel<ArticleResponse>> articles = service.getArticlesByTagName(tagName).stream()
+                .map(assembler::toModel)
+                .collect(Collectors.toList());
+
+        return CollectionModel.of(articles, linkTo(methodOn(ArticleController.class).getAllArticles()).withSelfRel());
+    }
 }
