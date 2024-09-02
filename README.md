@@ -1,7 +1,7 @@
 # Personal Blogging Platform API 
 [![NPM](https://img.shields.io/npm/l/react)](https://github.com/herikerbeth/personal-blogging-platform-API/blob/edit-readme/LICENSE) 
 
-This is a RESTful API for a personal blogging platform. It allows users to create, read, update, and delete blog posts. The API is built with Java and Spring Boot to create the server, Spring HATEOAS to write hypermedia-driven outputs, and uses PostgreSQL for data storage. Additionally, the API now supports filtering blog posts by publication date.
+This is a RESTful API for a personal blogging platform. It allows users to create, read, update, and delete blog posts. The API is built with Java and Spring Boot to create the server, Spring HATEOAS to write hypermedia-driven outputs, and uses PostgreSQL for data storage. Additionally, the API now supports filtering blog posts by publication date and tag name.
 
 ## API Documentation
 For detailed API documentation, please visit the [Swagger UI](https://personal-blogging-platform-api.up.railway.app/swagger-ui/index.html).
