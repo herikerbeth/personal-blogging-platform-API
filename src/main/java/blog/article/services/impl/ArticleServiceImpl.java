@@ -74,4 +74,12 @@ public class ArticleServiceImpl implements ArticleService {
                 .map(ArticleResponse::new)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<ArticleResponse> getArticlesByTagName(String tagName) {
+
+        return articleRepository.findAllByTagsName(tagName).stream()
+                .map(ArticleResponse::new)
+                .collect(Collectors.toList());
+    }
 }
