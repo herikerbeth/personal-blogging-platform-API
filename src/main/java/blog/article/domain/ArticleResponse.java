@@ -1,5 +1,8 @@
 package blog.article.domain;
 
+import blog.tag.domain.TagEntity;
+import blog.tag.domain.TagResponse;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDate;
@@ -12,9 +15,9 @@ public record ArticleResponse(
         String title,
         @Schema(description = "Content of the article", example = "content")
         String content,
-        @Schema(description = "Tags of the article")
-        List<Tag> tags,
-        @Schema(description = "Publish date of the article", example = "2024-08-24")
+        @ArraySchema(schema = @Schema(description = "Tags of the article", implementation = TagResponse.class))
+        List<TagEntity> tags,
+        @Schema(description = "Publish date of the article", example = "java.time.LocalDate.now()")
         LocalDate publishDate
 ) {
 
