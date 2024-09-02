@@ -15,4 +15,5 @@ public interface ArticleService {
     ArticleResponse updateArticle(Long id, ArticleUpdateRequest article);
     void deleteArticle(Long id);
     List<ArticleResponse> getArticlesByDate(LocalDate date);
+    List<ArticleResponse> getArticlesByTagName(String tagName);
 }
